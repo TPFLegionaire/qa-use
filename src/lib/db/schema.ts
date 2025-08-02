@@ -56,9 +56,9 @@ export const testRelations = relations(test, ({ one, many }) => ({
   runs: many(testRun),
 }))
 
-export const testStep = pgTable('test_step', {
-  id: serial('id').primaryKey(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+export const testStep = sqliteTable('test_step', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 
   testId: integer('test_id')
     .references(() => test.id, { onDelete: 'cascade' })

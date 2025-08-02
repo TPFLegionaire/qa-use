@@ -31,10 +31,10 @@ export const suiteRelations = relations(suite, ({ many }) => ({
 /**
  * A table containing information about all test runs.
  */
-export const test = pgTable('test', {
-  id: serial('id').primaryKey(),
+export const test = sqliteTable('test', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
 
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 
   label: text('label').notNull(),
   evaluation: text('evaluation').notNull(),

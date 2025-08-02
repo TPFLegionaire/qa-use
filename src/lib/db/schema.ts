@@ -84,35 +84,27 @@ export const testStepRelations = relations(testStep, ({ one }) => ({
 
 // Runs
 
-export const runStatus = pgEnum('run_status', [
-  //
-  'pending',
-  'running',
-  'passed',
-  'failed',
-])
+export type TRunStatus = 'pending' | 'running' | 'passed' | 'failed'
 
-export type TRunStatus = (typeof runStatus.enumValues)[number]
-
-export const suiteRun = pgTable('suite_run', {
-  id: serial('id').primaryKey(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+export const suiteRun = sqliteTable('suite_run', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 
   /**
    * The time the run started.
    */
-  startedAt: timestamp('started_at').defaultNow(),
+  startedAt: integer('started_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
 
   /**
    * The time the run finished.
    */
-  finishedAt: timestamp('finished_at'),
+  finishedAt: integer('finished_at', { mode: 'timestamp' }),
 
   suiteId: integer('suite_id')
     .references(() => suite.id, { onDelete: 'cascade' })
     .notNull(),
 
-  status: runStatus('status').notNull(),
+  status: text('status', { enum: ['pending', 'running', 'passed', 'failed'] }).notNull(),
 })
 
 export const suiteRunRelations = relations(suiteRun, ({ one, many }) => ({

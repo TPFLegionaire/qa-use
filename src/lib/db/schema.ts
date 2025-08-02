@@ -175,10 +175,10 @@ export const testRunRelations = relations(testRun, ({ one, many }) => ({
   testRunSteps: many(testRunStep),
 }))
 
-export const testRunStep = pgTable(
+export const testRunStep = sqliteTable(
   'test_run_step',
   {
-    id: serial('id').primaryKey(),
+    id: integer('id').primaryKey({ autoIncrement: true }),
 
     testRunId: integer('test_run_id')
       .references(() => testRun.id, { onDelete: 'cascade' })
@@ -188,7 +188,7 @@ export const testRunStep = pgTable(
       .references(() => testStep.id, { onDelete: 'cascade' })
       .notNull(),
 
-    status: runStatus('status').notNull(),
+    status: text('status', { enum: ['pending', 'running', 'passed', 'failed'] }).notNull(),
   },
   (table) => {
     return [unique('test_run_step_unique').on(table.testRunId, table.stepId)]

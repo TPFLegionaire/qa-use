@@ -115,20 +115,20 @@ export const suiteRunRelations = relations(suiteRun, ({ one, many }) => ({
   testRuns: many(testRun),
 }))
 
-export const testRun = pgTable('test_run', {
-  id: serial('id').primaryKey(),
+export const testRun = sqliteTable('test_run', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
 
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 
   /**
    * The time the run started.
    */
-  startedAt: timestamp('started_at').defaultNow(),
+  startedAt: integer('started_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
 
   /**
    * The time the run finished.
    */
-  finishedAt: timestamp('finished_at'),
+  finishedAt: integer('finished_at', { mode: 'timestamp' }),
 
   /**
    * The ID of the test this run belongs to.
@@ -141,7 +141,7 @@ export const testRun = pgTable('test_run', {
    * The ID of the suite run this test run belongs to.
    */
   suiteRunId: integer('suite_run_id').references(() => suiteRun.id, { onDelete: 'cascade' }),
-  status: runStatus('status').notNull(),
+  status: text('status', { enum: ['pending', 'running', 'passed', 'failed'] }).notNull(),
 
   error: text('error'),
 

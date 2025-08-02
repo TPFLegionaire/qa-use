@@ -1,23 +1,21 @@
 import { relations } from 'drizzle-orm'
-import { integer, pgEnum, pgTable, serial, text, timestamp, unique } from 'drizzle-orm/pg-core'
+import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 
-export const cronCadence = pgEnum('cron_cadence', ['hourly', 'daily'])
-
-export const suite = pgTable('suite', {
-  id: serial('id').primaryKey(),
+export const suite = sqliteTable('suite', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
 
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 
   /**
    * The cadence of the cron job. If not set, the suite will not be run by cron.
    */
-  cronCadence: cronCadence('cron_cadence'),
+  cronCadence: text('cron_cadence', { enum: ['hourly', 'daily'] }),
 
   /**
    * The last time the cron job was run.
    */
-  lastCronRunAt: timestamp('last_cron_run_at'),
+  lastCronRunAt: integer('last_cron_run_at', { mode: 'timestamp' }),
 
   /**
    * The email address to send notifications to. If not set, no notifications will be sent.
